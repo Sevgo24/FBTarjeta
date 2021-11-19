@@ -21,7 +21,6 @@ namespace FBTarjeta
         {
             Configuration = configuration;
         }
-
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -33,6 +32,13 @@ namespace FBTarjeta
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "FBTarjeta", Version = "v1" });
             });
+            // Add Cors
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
 
             services.AddDbContext<AplicationDbContext>(options => 
                             options.UseSqlServer(Configuration.GetConnectionString("DevConnection")));
@@ -49,11 +55,10 @@ namespace FBTarjeta
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
+            // Enable Cors
+            app.UseCors("MyPolicy");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
